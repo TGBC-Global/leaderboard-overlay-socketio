@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Overlay</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #teams {
+      font-family: Arial, sans-serif;
+    }
+    #teams > div {
+      margin-bottom: 24px;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(180deg, rgb(0, 46, 35), rgb(0, 26, 13));
+      border-top: 4px solid #dc8400;
+      color: white;
+      position: relative;
+    }
+    #teams > div > div {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #teams > div > div,
+    #teams > div > div > div,
+    #teams > div > div > div > div {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1em;
+    }
+    #teams > div > div > div > div {
+      justify-content: space-between;
+    }
+    #teams > div > div > div > div .img {
+      height: 64%;
+    }
+    #teams > div > div > div > div .score {
+      font-size: 3em;
+    }
+    #teams > div > div > div > div {
+      gap: 3em;
+    }
+    #teams > div > div > div > div .logo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="teams">
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    socket.on('update', (data) => {
+      const teams = document.getElementById('teams');
+      teams.innerHTML = '';
+      data.forEach((team) => {
+        const teamDiv = document.createElement('div');
+        const round = document.createElement('span');
+        round.textContent = `${team.name}`;
+        teamDiv.appendChild(round);
+        const teamDiffDiv = document.createElement('div');
+        const team1Div = document.createElement('div');
+        const team2Div = document.createElement('div');
+        const divider = document.createElement('h1');
+        divider.textContent = ` : `;
+        teamDiffDiv.appendChild(team1Div);
+        const team1Content = createTeamElement({
+          name: team.t1_name,
+          score: team.score_t1,
+          img: team.t1_img
+        })
+        const team2Content = createTeamElement({
+          name: team.t2_name,
+          score: team.score_t2,
+          img: team.t2_img
+        }, true)
+        team1Div.appendChild(team1Content);
+        team2Div.appendChild(team2Content);
+        teamDiffDiv.appendChild(divider);
+        teamDiffDiv.appendChild(team2Div);
+        teamDiv.appendChild(teamDiffDiv);
+        teams.appendChild(teamDiv);
+      });
+    });
+    function createTeamElement(team, revese = false) {
+      const teamDiv = document.createElement('div');
+      const teamlogoDiv = document.createElement('div');
+      teamlogoDiv.classList.value = 'logo-container';
+      const img = document.createElement('img');
+      img.src = team.img;
+      img.classList.value = 'img';
+      const text = document.createElement('h1');
+      text.textContent = team.name;
+      text.classList.value = 'name';
+      const score = document.createElement('h1');
+      score.textContent = team.score;
+      score.classList.value = 'score';
+      if ( revese ) {
+        teamDiv.appendChild(score);
+        teamDiv.appendChild(teamlogoDiv);
+        if (team.img) teamlogoDiv.appendChild(img);
+        else teamlogoDiv.appendChild(text);
+      } else {
+        teamDiv.appendChild(teamlogoDiv);
+        teamDiv.appendChild(score);
+        if (team.img) teamlogoDiv.appendChild(img);
+        else teamlogoDiv.appendChild(text);
+      }
+      return teamDiv;
+    }
+  </script>
+</body>
+</html>
